@@ -1,12 +1,19 @@
 Gin-N-Juice Framework
 =================
 
-Gin-N-Juice is a Go framework that is built on [Gin](https://github.com/gin-gonic/gin),
-[Gorm](https://gorm.io) and [Goose](https://github.com/pressly/goose).
+Gin-N-Juice is a Go JSON API framework that is built on [Gin](https://github.com/gin-gonic/gin),
+[Gorm](https://gorm.io) and [Goose](https://github.com/pressly/goose). 
+
+Current Features
+------
+- Uses Gorm as an ORM
+- Database migrations via Goose
+- Simple routing via Gin
+- Simple Auth (login,register,forgot password and reset password)
 
 Requirements
 ------
-Currently only supports Windows, this will be updated ASAP. Also only mail provider that currently
+Currently only supports Windows, Linux support will come soon. The only mail provider that currently
 works is Mailgun.
 
 Setup
@@ -20,6 +27,7 @@ MAILGUN_VALIDATION_KEY=[get from mailgun]
 DB_TYPE=[sqlite,postgres or mysql]
 DB_CONNECTION_STRING="[connection string for your db]"
 ```
+Add routes to the `routes` directory and reference them in the `routes/router.go`.
 
 Commands
 ------
