@@ -2,6 +2,7 @@ package routes
 
 import (
 	"gin-n-juice/routes/auth"
+	"gin-n-juice/routes/middleware"
 	"gin-n-juice/routes/users"
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +17,10 @@ func SetupRouter() *gin.Engine {
 	authRouter.POST("/forgot", auth.PostForgot)
 	authRouter.POST("/reset", auth.PostReset)
 
-	userRouter := r.Group("/users")
+	authenticatedRouter := r.Group("")
+	authenticatedRouter.Use(middleware.JwtAuth())
+
+	userRouter := authenticatedRouter.Group("/users")
 	userRouter.GET("", users.GetList)
 
 	return r

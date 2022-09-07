@@ -33,5 +33,7 @@ func PostLogin(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": user})
+	token := models.GenerateJwt(user)
+
+	c.JSON(http.StatusOK, gin.H{"user": user, "token": token})
 }
