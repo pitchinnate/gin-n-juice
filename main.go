@@ -50,10 +50,10 @@ func main() {
 		wg.Wait()
 	} else if len(args) > 0 && args[0] == "test" {
 		var wg sync.WaitGroup
+		os.Remove(fmt.Sprintf("%s/tmp/test.db", directory))
 		runCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate.exe", directory), wg)
 		runCommand(fmt.Sprintf("%s/tmp/migrate.exe -testing up", directory), wg)
 		runCommand(fmt.Sprintf("cd %s && go test ./routes/... %s", directory, strings.Join(args[1:], " ")), wg)
-		os.Remove(fmt.Sprintf("%s/tmp/test.db", directory))
 		wg.Wait()
 	}
 }

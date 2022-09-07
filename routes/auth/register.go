@@ -42,5 +42,7 @@ func PostRegister(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"user": user})
+	token := models.GenerateJwt(user)
+
+	c.JSON(http.StatusCreated, gin.H{"user": user, "token": token})
 }
