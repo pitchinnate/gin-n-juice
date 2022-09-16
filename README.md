@@ -13,8 +13,7 @@ Current Features
 
 Requirements
 ------
-Currently only supports Windows, Linux support will come soon. The only mail provider that currently
-works is Mailgun.
+The only mail provider that currently works is Mailgun.
 
 Setup
 ------

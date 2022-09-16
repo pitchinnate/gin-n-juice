@@ -15,7 +15,7 @@ require (
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/onsi/gomega v1.20.2 // indirect
 	github.com/pressly/goose/v3 v3.7.0
-	github.com/stretchr/testify v1.8.0 // indirect
+	github.com/stretchr/testify v1.8.0
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 	gopkg.in/mailgun/mailgun-go.v1 v1.1.1
 	gorm.io/driver/mysql v1.3.6

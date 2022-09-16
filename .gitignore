@@ -1,6 +1,7 @@
 .env
 *.db
 .idea
+tmp/**
 
 # CMake
 cmake-build-*/

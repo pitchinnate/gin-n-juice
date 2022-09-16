@@ -44,7 +44,7 @@ func main() {
 		exPath := filepath.Dir(ex)
 		config.SetupTestEnv(fmt.Sprintf("%s/test.db", exPath))
 	}
-	db.ConnectDatabase(logger.Silent)
+	db.ConnectDatabase(logger.Info)
 
 	command := "status"
 	if len(args) > 0 {
@@ -66,10 +66,6 @@ func main() {
 		}
 	} else {
 		log.Fatalf("Using an unsupported database connection type: %s", config.DB_TYPE)
-	}
-
-	if err := goose.SetDialect("sqlite3"); err != nil {
-		log.Fatalf("goose error setting dialect: %v", err)
 	}
 
 	directory, err := os.Getwd()

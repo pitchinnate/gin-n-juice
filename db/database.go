@@ -34,6 +34,7 @@ func ConnectDatabase(logLevel logger.LogLevel) {
 	}
 
 	if err != nil {
+		log.Print("Connection Error: ", err)
 		panic("Failed to connect to database!")
 	}
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -38,52 +39,60 @@ func main() {
 	}
 	log.Print("Current Directory: ", directory)
 
+	commandExtension := ""
+	if runtime.GOOS == "windows" {
+		commandExtension = ".exe"
+	}
+
+	path := fmt.Sprintf("%s/tmp", directory)
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		err := os.Mkdir(path, os.ModePerm)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	if len(args) == 0 || args[0] == "serve" {
 		var wg sync.WaitGroup
-		runCommand(fmt.Sprintf("cd %s/cmd/server && go build -o ../../tmp/app.exe", directory), wg)
-		runCommand(fmt.Sprintf("%s/tmp/app.exe", directory), wg)
+		runCommand(fmt.Sprintf("cd %s/cmd/server && go build -o ../../tmp/app%s", directory, commandExtension), wg)
+		runCommand(fmt.Sprintf("chmod +x %s/tmp/app%s", directory, commandExtension), wg)
+		runCommand(fmt.Sprintf("%s/tmp/app%s", directory, commandExtension), wg)
 		wg.Wait()
 	} else if len(args) > 0 && args[0] == "migrate" {
 		var wg sync.WaitGroup
-		runCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate.exe", directory), wg)
-		runCommand(fmt.Sprintf("%s/tmp/migrate.exe %s", directory, strings.Join(args[1:], " ")), wg)
+		runCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate%s", directory, commandExtension), wg)
+		runCommand(fmt.Sprintf("chmod +x %s/tmp/migrate%s", directory, commandExtension), wg)
+		runCommand(fmt.Sprintf("%s/tmp/migrate%s %s", directory, commandExtension, strings.Join(args[1:], " ")), wg)
 		wg.Wait()
 	} else if len(args) > 0 && args[0] == "test" {
 		var wg sync.WaitGroup
 		os.Remove(fmt.Sprintf("%s/tmp/test.db", directory))
-		runCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate.exe", directory), wg)
-		runCommand(fmt.Sprintf("%s/tmp/migrate.exe -testing up", directory), wg)
+		runCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate%s", directory, commandExtension), wg)
+		runCommand(fmt.Sprintf("chmod +x %s/tmp/migrate%s", directory, commandExtension), wg)
+		runCommand(fmt.Sprintf("%s/tmp/migrate%s -testing up", directory, commandExtension), wg)
 		runCommand(fmt.Sprintf("cd %s && go test ./routes/... %s", directory, strings.Join(args[1:], " ")), wg)
 		wg.Wait()
 	}
 }
 
 func runCommand(command string, wg sync.WaitGroup) {
+	var cmd *exec.Cmd
+	wg.Add(1)
 	if runtime.GOOS == "windows" {
-		wg.Add(1)
-		cmd := exec.Command("cmd", "/C", command)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		log.Print("Running command: ", command)
-		err := cmd.Start()
-		if err != nil {
-			log.Print("command error: ", err, " command: ", command)
-		}
-		err = cmd.Wait()
-		if err != nil {
-			log.Print("command wait error: ", err, " command: ", command)
-		}
-		wg.Done()
+		cmd = exec.Command("cmd", "/C", command)
 	} else {
-		panic("linux not supported yet")
-		//command := strings.Join(arguements, " ")
-		//fullCommand := fmt.Sprintf("%s %s", path, command)
-		//cmd := exec.Command("bash", "-c", fullCommand)
-		//cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-		//if debugMode {
-		//	cmd.Stdout = os.Stdout
-		//	cmd.Stderr = os.Stderr
-		//}
-		//return cmd
+		cmd = exec.Command("bash", "-c", command)
 	}
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	log.Print("Running command: ", command)
+	err := cmd.Start()
+	if err != nil {
+		log.Print("command error: ", err, " command: ", command)
+	}
+	err = cmd.Wait()
+	if err != nil {
+		log.Print("command wait error: ", err, " command: ", command)
+	}
+	wg.Done()
 }
