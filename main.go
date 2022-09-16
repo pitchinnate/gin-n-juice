@@ -19,7 +19,8 @@ type RunCommand struct {
 }
 
 var (
-	flags = flag.NewFlagSet("jackwebbit", flag.ExitOnError)
+	flags = flag.NewFlagSet("gin-n-juice", flag.ExitOnError)
+	debug = flags.Bool("debug", false, "Enable debug mode")
 )
 
 func main() {
@@ -31,13 +32,14 @@ func main() {
 	flags.Parse(os.Args[1:])
 	args := flags.Args()
 
-	log.Print("args:", args)
-
 	directory, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
-	log.Print("Current Directory: ", directory)
+
+	if *debug {
+		log.Printf("Working Directory: %s", directory)
+	}
 
 	commandExtension := ""
 	if runtime.GOOS == "windows" {
@@ -55,20 +57,22 @@ func main() {
 	if len(args) == 0 || args[0] == "serve" {
 		var wg sync.WaitGroup
 		runCommand(fmt.Sprintf("cd %s/cmd/server && go build -o ../../tmp/app%s", directory, commandExtension), wg)
-		runCommand(fmt.Sprintf("chmod +x %s/tmp/app%s", directory, commandExtension), wg)
 		runCommand(fmt.Sprintf("%s/tmp/app%s", directory, commandExtension), wg)
 		wg.Wait()
 	} else if len(args) > 0 && args[0] == "migrate" {
 		var wg sync.WaitGroup
 		runCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate%s", directory, commandExtension), wg)
-		runCommand(fmt.Sprintf("chmod +x %s/tmp/migrate%s", directory, commandExtension), wg)
 		runCommand(fmt.Sprintf("%s/tmp/migrate%s %s", directory, commandExtension, strings.Join(args[1:], " ")), wg)
+		wg.Wait()
+	} else if len(args) > 0 && args[0] == "generator" {
+		var wg sync.WaitGroup
+		runCommand(fmt.Sprintf("cd %s/cmd/generator && go build -o ../../tmp/generator%s", directory, commandExtension), wg)
+		runCommand(fmt.Sprintf("%s/tmp/generator%s %s", directory, commandExtension, strings.Join(args[1:], " ")), wg)
 		wg.Wait()
 	} else if len(args) > 0 && args[0] == "test" {
 		var wg sync.WaitGroup
 		os.Remove(fmt.Sprintf("%s/tmp/test.db", directory))
 		runCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate%s", directory, commandExtension), wg)
-		runCommand(fmt.Sprintf("chmod +x %s/tmp/migrate%s", directory, commandExtension), wg)
 		runCommand(fmt.Sprintf("%s/tmp/migrate%s -testing up", directory, commandExtension), wg)
 		runCommand(fmt.Sprintf("cd %s && go test ./routes/... %s", directory, strings.Join(args[1:], " ")), wg)
 		wg.Wait()
@@ -85,13 +89,15 @@ func runCommand(command string, wg sync.WaitGroup) {
 	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	log.Print("Running command: ", command)
+	if *debug {
+		log.Print("Running command: ", command)
+	}
 	err := cmd.Start()
-	if err != nil {
+	if err != nil && *debug {
 		log.Print("command error: ", err, " command: ", command)
 	}
 	err = cmd.Wait()
-	if err != nil {
+	if err != nil && *debug {
 		log.Print("command wait error: ", err, " command: ", command)
 	}
 	wg.Done()

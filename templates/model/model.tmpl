@@ -1,0 +1,11 @@
+package models
+
+import (
+	"gorm.io/gorm"
+)
+
+type {{.ModelName}} struct {
+	gorm.Model
+	{{range .Properties}}{{.Name}} {{.Type}} `json:"{{.Json}}"`
+	{{end}}
+}

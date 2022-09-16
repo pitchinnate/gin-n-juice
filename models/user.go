@@ -3,8 +3,8 @@ package models
 import (
 	"gin-n-juice/config"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -13,6 +13,15 @@ type User struct {
 	Email    string `json:"email"`
 	Password string `json:"-"`
 	Admin    bool   `json:"admin"`
+}
+
+func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
+	password, err := HashPassword(user.Password)
+	if err != nil {
+		return err
+	}
+	tx.Statement.SetColumn("Password", password)
+	return nil
 }
 
 func HashPassword(password string) (string, error) {

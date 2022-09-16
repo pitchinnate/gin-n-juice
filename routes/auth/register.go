@@ -27,12 +27,7 @@ func PostRegister(c *gin.Context) {
 		return
 	}
 
-	password, err := models.HashPassword(json.Password)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	user.Password = password
+	user.Password = json.Password
 	user.Email = json.Email
 	user.Admin = false
 

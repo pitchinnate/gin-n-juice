@@ -36,3 +36,13 @@ Commands
   - Runs goose migrations, see goose's documentation for more details
 - `go run . test`
   - Runs tests on all routes currently, plan on testing models also
+- `go run . generator -type [model|resource] -name [ex:user] -fields [name:type,name:type,...]`
+  - `-fields` is only used with model type
+  - resource creates standard API endpoints for the name (create,update,delete,list,view)
+  - use singular names, the name will automatically be pluralized when needed (example: `user` not `users`)
+  - Example: `go run . generator -type model -name book -fields title:string,category_id:uint,pages:uint`
+    - Creates a single file `book.go` in the `/models` directory
+  - Example: `go run . generator -type resource -name book`
+    - Creates a new directory `/routes/books`
+    - Creates five files in that directory
+      - `create.go`, `delete.go`, `get.go`, `list.go`, `update.go`

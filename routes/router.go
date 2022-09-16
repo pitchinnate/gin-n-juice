@@ -22,6 +22,10 @@ func SetupRouter() *gin.Engine {
 
 	userRouter := authenticatedRouter.Group("/users")
 	userRouter.GET("", users.GetList)
+	userRouter.POST("", users.Create)
+	userRouter.GET("/:id", users.GetSingle)
+	userRouter.PUT("/:id", users.Update)
+	userRouter.DELETE("/:id", users.Delete)
 
 	return r
 }

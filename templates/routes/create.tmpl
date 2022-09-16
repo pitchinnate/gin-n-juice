@@ -1,0 +1,23 @@
+package {{.PluralInstance}}
+
+import (
+	"gin-n-juice/db"
+	"gin-n-juice/models"
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
+
+func Create(c *gin.Context) {
+	var json_{{.SingleInstance}} models.{{.ModelName}}
+	if err := c.ShouldBindJSON(&json_{{.SingleInstance}}); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := db.DB.Create(&json_{{.SingleInstance}}).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"{{.SingleInstance}}": json_{{.SingleInstance}}})
+}
