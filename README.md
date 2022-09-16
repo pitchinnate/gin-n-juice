@@ -13,7 +13,8 @@ Current Features
 
 Requirements
 ------
-The only mail provider that currently works is Mailgun.
+- The only mail provider that currently works is Mailgun.
+- Go version 1.18 or later
 
 Setup
 ------
