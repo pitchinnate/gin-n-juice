@@ -44,7 +44,7 @@ func main() {
 		exPath := filepath.Dir(ex)
 		config.SetupTestEnv(fmt.Sprintf("%s/test.db", exPath))
 	}
-	db.ConnectDatabase(logger.Info)
+	db.ConnectDatabase(logger.Silent)
 
 	command := "status"
 	if len(args) > 0 {
