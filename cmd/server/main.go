@@ -42,7 +42,7 @@ func serve() {
 	r := routes.SetupRouter()
 	hostname, ok = os.LookupEnv("SERVER_HOSTNAME")
 	if !ok {
-		hostname="http://localhost"
+		hostname="localhost"
 	}
 	r.Run("%s:8080", hostname)
 }
