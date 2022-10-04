@@ -19,7 +19,6 @@ func main() {
 	if err == nil {
 		time.Local = loc
 	}
-
 	loadEnv()
 	config.SetupEnv()
 	db.ConnectDatabase(logger.Silent)
@@ -42,8 +41,9 @@ func serve() {
 	r := routes.SetupRouter()
 	hostname, ok = os.LookupEnv("SERVER_HOSTNAME")
 	if !ok {
-		hostname="localhost"
+		hostname = "localhost"
 	}
-	connectionString := fmt.Sprintf("%s:8080", hostname) 
+
+	connectionString := fmt.Sprintf("%s:%s", hostname, config.PORT)
 	r.Run(connectionString)
 }
