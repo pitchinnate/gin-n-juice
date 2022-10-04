@@ -44,5 +44,6 @@ func serve() {
 	if !ok {
 		hostname="localhost"
 	}
-	r.Run("%s:8080", hostname)
+	connectionString := fmt.Sprintf("%s:8080", hostname) 
+	r.Run(connectionString)
 }
