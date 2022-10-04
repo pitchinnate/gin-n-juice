@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+var hostname string
+
 func main() {
 	loc, err := time.LoadLocation("UTC")
 	if err == nil {
@@ -36,6 +38,11 @@ func loadEnv() {
 }
 
 func serve() {
+	var ok bool
 	r := routes.SetupRouter()
-	r.Run(":8080")
+	hostname, ok = os.LookupEnv("SERVER_HOSTNAME")
+	if !ok {
+		hostname="http://localhost"
+	}
+	r.Run("%s:8080", hostname)
 }
