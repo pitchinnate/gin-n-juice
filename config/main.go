@@ -12,6 +12,7 @@ var ENCRYPT_KEY string
 var DB_TYPE string
 var DB_CONNECTION_STRING string
 var IS_TESTING bool
+var PORT string
 
 func SetupEnv() {
 	var ok bool
@@ -39,6 +40,12 @@ func SetupEnv() {
 	if !ok {
 		log.Fatalf("missing required env var DB_CONNECTION_STRING")
 	}
+
+	PORT, ok = os.LookupEnv("PORT")
+	if !ok {
+		log.Printf("PORT environment variable was not found, setting port to 8080...")
+		PORT = "8080"
+	}
 	IS_TESTING = false
 }
 
@@ -47,4 +54,5 @@ func SetupTestEnv(dbFile string) {
 	DB_TYPE = "sqlite"
 	DB_CONNECTION_STRING = dbFile
 	IS_TESTING = true
+	PORT = "8080"
 }
