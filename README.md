@@ -25,7 +25,9 @@ MAILGUN_DOMAIN=[get from mailgun]
 MAILGUN_PRIVATE_KEY=[get from mailgun]
 MAILGUN_VALIDATION_KEY=[get from mailgun]
 DB_TYPE=[sqlite,postgres or mysql]
-DB_CONNECTION_STRING="[connection string for your db]"
+DB_CONNECTION_STRING="[connection string for your db, see below]"
+PORT=[port to run server on. defaults to port 8080]
+SERVER_HOSTNAME=[hostname server will listen for. defaults to 127.0.0.1/localhost]
 ```
 DB connection string reference: 
 ```
