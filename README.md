@@ -29,16 +29,9 @@ DB_CONNECTION_STRING="[connection string for your db]"
 ```
 DB connection string reference: 
 ```
-MySQL:
-dsn := "user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
-db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
-SQLite:
-db, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
-
-PostgreSQL:
-dsn := "host=localhost user=gorm password=gorm dbname=gorm port=5432 sslmode=disable TimeZone=America/New_York"
-db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+MySQL: "user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
+SQLite: "gorm.db"
+PostgreSQL: "host=localhost user=gorm password=gorm dbname=gorm port=5432 sslmode=disable TimeZone=America/New_York"
 ```
 Add routes to the `routes` directory and reference them in the `routes/router.go`.
 
