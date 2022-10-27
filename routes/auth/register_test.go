@@ -15,10 +15,9 @@ func TestRegister(t *testing.T) {
 	tester.TestPackage(t)
 	defer tester.CleanupPackage(t)
 
-	password, _ := models.HashPassword("testing")
 	user := models.User{
 		Email:    "test@test.com",
-		Password: password,
+		Password: "testing",
 		Admin:    false,
 	}
 	db.DB.Create(&user)
@@ -34,9 +33,10 @@ func TestRegister(t *testing.T) {
 		assert.Contains(t, response.Error, "Field validation for 'Email' failed")
 		assert.Contains(t, response.Error, "Field validation for 'Password' failed")
 		assert.Contains(t, response.Error, "Field validation for 'ConfirmPassword' failed")
+		assert.Contains(t, response.Error, "Field validation for 'VerifyUrl' failed")
 	})
 	t.Run("Test Register Bad Email", func(t *testing.T) {
-		body, _ := json.Marshal(gin.H{"email": "test", "password": "testing1", "confirm_password": "testing1"})
+		body, _ := json.Marshal(gin.H{"email": "test", "password": "testing1", "confirm_password": "testing1", "verify_url": "http://test.com"})
 		w := tester.SetupTestRouter("POST", PostRegister, body)
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -46,7 +46,7 @@ func TestRegister(t *testing.T) {
 		assert.Contains(t, response.Error, "Field validation for 'Email' failed")
 	})
 	t.Run("Test Register Short Password", func(t *testing.T) {
-		body, _ := json.Marshal(gin.H{"email": "test@test.com", "password": "test", "confirm_password": "test"})
+		body, _ := json.Marshal(gin.H{"email": "test@test.com", "password": "test", "confirm_password": "test", "verify_url": "http://test.com"})
 		w := tester.SetupTestRouter("POST", PostRegister, body)
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -56,7 +56,7 @@ func TestRegister(t *testing.T) {
 		assert.Contains(t, response.Error, "Field validation for 'Password' failed")
 	})
 	t.Run("Test Register Not Matching Password", func(t *testing.T) {
-		body, _ := json.Marshal(gin.H{"email": "test@test.com", "password": "testing1", "confirm_password": "testing2"})
+		body, _ := json.Marshal(gin.H{"email": "test@test.com", "password": "testing1", "confirm_password": "testing2", "verify_url": "http://test.com"})
 		w := tester.SetupTestRouter("POST", PostRegister, body)
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -66,7 +66,7 @@ func TestRegister(t *testing.T) {
 		assert.Contains(t, response.Error, "Field validation for 'ConfirmPassword' failed")
 	})
 	t.Run("Test Register Email already used", func(t *testing.T) {
-		body, _ := json.Marshal(gin.H{"email": "test@test.com", "password": "testing1", "confirm_password": "testing1"})
+		body, _ := json.Marshal(gin.H{"email": "test@test.com", "password": "testing1", "confirm_password": "testing1", "verify_url": "http://test.com"})
 		w := tester.SetupTestRouter("POST", PostRegister, body)
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -76,17 +76,10 @@ func TestRegister(t *testing.T) {
 		assert.Contains(t, response.Error, "Email address already used, use forgot password")
 	})
 	t.Run("Test Register Email valid", func(t *testing.T) {
-		body, _ := json.Marshal(gin.H{"email": "foo@test.com", "password": "testing1", "confirm_password": "testing1"})
+		body, _ := json.Marshal(gin.H{"email": "foo@test.com", "password": "testing1", "confirm_password": "testing1", "verify_url": "http://test.com"})
 		w := tester.SetupTestRouter("POST", PostRegister, body)
 
 		assert.Equal(t, http.StatusCreated, w.Code)
-		assert.Contains(t, w.Body.String(), "foo@test.com")
-		assert.Contains(t, w.Body.String(), "token")
-
-		var dbUser models.User
-		db.DB.Where("email like ?", "foo@test.com").First(&dbUser)
-		if dbUser.ID == 0 {
-			t.Error("User not found in db")
-		}
+		assert.Contains(t, w.Body.String(), "Check your email to verify your email address")
 	})
 }

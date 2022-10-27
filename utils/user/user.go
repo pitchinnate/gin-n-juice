@@ -2,8 +2,8 @@ package user
 
 import (
 	"fmt"
+	"gin-n-juice/models"
 	"github.com/gin-gonic/gin"
-	"tagdeploy/models"
 )
 
 func GetUserFromContext(c *gin.Context) (*models.User, error) {

@@ -3,13 +3,13 @@ package auth
 import (
 	"encoding/base64"
 	"fmt"
+	"gin-n-juice/config"
+	"gin-n-juice/db"
+	"gin-n-juice/models"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-	"tagdeploy/config"
-	"tagdeploy/db"
-	"tagdeploy/models"
 	"time"
 )
 

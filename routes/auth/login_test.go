@@ -15,10 +15,9 @@ func TestLogin(t *testing.T) {
 	tester.TestPackage(t)
 	defer tester.CleanupPackage(t)
 
-	password, _ := models.HashPassword("testing")
 	user := models.User{
 		Email:    "test@test.com",
-		Password: password,
+		Password: "testing",
 		Admin:    false,
 	}
 	db.DB.Create(&user)
