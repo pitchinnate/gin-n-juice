@@ -47,7 +47,7 @@ Commands
 - `go run . migrate [status|up|down|etc...]`
   - Runs goose migrations, see goose's documentation for more details
 - `go run . test`
-  - Run tests on all routes currently, plan on testing models also
+  - Run tests on all routes and models
 - `go run . generator -type [model|resource] -name [ex:user] -fields [name:type,name:type,...]`
   - `-fields` is only used with model type
   - resource creates standard API endpoints for the name (create,update,delete,list,view)
