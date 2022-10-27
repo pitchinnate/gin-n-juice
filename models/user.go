@@ -10,9 +10,10 @@ import (
 
 type User struct {
 	gorm.Model
-	Email    string `json:"email"`
-	Password string `json:"-"`
-	Admin    bool   `json:"admin"`
+	Email         string     `json:"email"`
+	Password      string     `json:"-"`
+	Admin         bool       `json:"admin"`
+	EmailVerified *time.Time `json:"email_verified"`
 }
 
 func (user *User) BeforeCreate(tx *gorm.DB) (err error) {

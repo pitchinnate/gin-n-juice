@@ -5,10 +5,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"gin-n-juice/config"
 	"github.com/gertd/go-pluralize"
+	"github.com/iancoleman/strcase"
+	"github.com/joho/godotenv"
 	"golang.org/x/exp/slices"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -28,6 +29,7 @@ type ModelInfo struct {
 	ModelName      string
 	SingleInstance string
 	PluralInstance string
+	PackageName    string
 	Properties     []ModelProperty
 }
 
@@ -47,14 +49,18 @@ func main() {
 		log.Fatalf("Type and name are required. Use --help for more info.")
 	}
 
+	loadEnv()
+	config.SetupEnv()
+
 	flags.Parse(os.Args[1:])
 
 	pluralize := pluralize.NewClient()
 
 	modelInfo := ModelInfo{
-		ModelName:      cases.Title(language.English, cases.Compact).String(*generatorName),
-		SingleInstance: strings.ToLower(*generatorName),
-		PluralInstance: pluralize.Plural(strings.ToLower(*generatorName)),
+		ModelName:      strcase.ToCamel(*generatorName),
+		SingleInstance: strcase.ToSnake(*generatorName),
+		PluralInstance: pluralize.Plural(strcase.ToSnake(*generatorName)),
+		PackageName:    config.PACKAGE_NAME,
 	}
 
 	if *generatorFields != "" {
@@ -75,9 +81,9 @@ func main() {
 			}
 
 			props = append(props, ModelProperty{
-				cases.Title(language.English, cases.Compact).String(pieces2[0]),
+				strcase.ToCamel(pieces2[0]),
 				pieces2[1],
-				strings.ToLower(pieces2[0]),
+				strcase.ToSnake(pieces2[0]),
 			})
 		}
 		modelInfo.Properties = props
@@ -160,5 +166,16 @@ func main() {
 		} else {
 			log.Printf("File already exists: %s", newFilePath)
 		}
+	}
+}
+
+func loadEnv() {
+	directory, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	err = godotenv.Load(fmt.Sprintf("%s/.env", directory))
+	if err != nil {
+		log.Fatal("Error loading .env file", err)
 	}
 }

@@ -13,6 +13,9 @@ var DB_TYPE string
 var DB_CONNECTION_STRING string
 var IS_TESTING bool
 var PORT string
+var DEBUG = true
+var EMAIL_FROM string
+var PACKAGE_NAME string
 
 func SetupEnv() {
 	var ok bool
@@ -40,12 +43,24 @@ func SetupEnv() {
 	if !ok {
 		log.Fatalf("missing required env var DB_CONNECTION_STRING")
 	}
-
+	EMAIL_FROM, ok = os.LookupEnv("EMAIL_FROM")
+	if !ok {
+		log.Fatalf("missing required env var EMAIL_FROM")
+	}
 	PORT, ok = os.LookupEnv("PORT")
 	if !ok {
-		log.Printf("PORT environment variable was not found, setting port to 8080...")
 		PORT = "8080"
 	}
+	PACKAGE_NAME, ok = os.LookupEnv("PACKAGE_NAME")
+	if !ok {
+		PACKAGE_NAME = "gin-n-juice"
+	}
+
+	debugVal, ok := os.LookupEnv("MODE")
+	if ok && debugVal == "production" {
+		DEBUG = false
+	}
+
 	IS_TESTING = false
 }
 

@@ -5,13 +5,15 @@ import (
 	"gin-n-juice/db"
 	"github.com/pressly/goose/v3"
 	"gorm.io/gorm"
+	"time"
 )
 
 type User struct {
 	gorm.Model
-	Email    string `json:"email"`
-	Password string `json:"-"`
-	Admin    bool   `json:"admin"`
+	Email         string     `json:"email"`
+	Password      string     `json:"-"`
+	Admin         bool       `json:"admin"`
+	EmailVerified *time.Time `json:"email_verified"`
 }
 
 func init() {
