@@ -79,7 +79,7 @@ func main() {
 		os.Remove(fmt.Sprintf("%s/tmp/test.db", directory))
 		command.RunCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate%s", directory, commandExtension), appState)
 		command.RunCommand(fmt.Sprintf("%s/tmp/migrate%s -testing up", directory, commandExtension), appState)
-		command.RunCommand(fmt.Sprintf("cd %s && go test ./routes/... %s", directory, strings.Join(args[1:], " ")), appState)
+		command.RunCommand(fmt.Sprintf("cd %s && go test ./routes/... ./models/... %s", directory, strings.Join(args[1:], " ")), appState)
 	}
 }
 

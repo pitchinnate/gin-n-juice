@@ -70,4 +70,5 @@ func SetupTestEnv(dbFile string) {
 	DB_CONNECTION_STRING = dbFile
 	IS_TESTING = true
 	PORT = "8080"
+	EMAIL_FROM = "test@test.com"
 }

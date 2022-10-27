@@ -2,11 +2,11 @@ package command
 
 import (
 	"fmt"
+	"gin-n-juice/config"
 	"golang.org/x/sys/windows"
 	"os"
 	"os/exec"
 	"syscall"
-	"tagdeploy/config"
 	"unsafe"
 )
 
