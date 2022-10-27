@@ -16,11 +16,18 @@ func SetupRouter() *gin.Engine {
 	authRouter.POST("/register", auth.PostRegister)
 	authRouter.POST("/forgot", auth.PostForgot)
 	authRouter.POST("/reset", auth.PostReset)
+	authRouter.GET("/verify", auth.GetVerify)
 
 	authenticatedRouter := r.Group("")
 	authenticatedRouter.Use(middleware.JwtAuth())
 
-	userRouter := authenticatedRouter.Group("/users")
+	authenticatedRouter.POST("/auth/resend", auth.PostResend)
+
+	verifiedEmailRouter := authenticatedRouter.Group("")
+	verifiedEmailRouter.Use(middleware.EmailVerified())
+
+	userRouter := verifiedEmailRouter.Group("/users")
+
 	userRouter.GET("", users.GetList)
 	userRouter.POST("", users.Create)
 	userRouter.GET("/:id", users.GetSingle)

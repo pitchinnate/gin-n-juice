@@ -71,7 +71,7 @@ If you did not request a forgot password you can ignore this email.
 
 	newMessage := mail.EmailMessage{
 		user.Email,
-		"no-reply@gophertunnel.io",
+		nil,
 		"Forgot Password Request",
 		fmt.Sprintf(message, user.Email, url, url),
 	}
@@ -94,7 +94,7 @@ func sendBadEmail(email string) error {
 
 	newMessage := mail.EmailMessage{
 		email,
-		"no-reply@gophertunnel.io",
+		nil,
 		"Forgot Password Request",
 		fmt.Sprintf(message, email),
 	}

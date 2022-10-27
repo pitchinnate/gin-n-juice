@@ -7,7 +7,7 @@ import (
 
 type EmailMessage struct {
 	To      string
-	From    string
+	From    *string
 	Subject string
 	Body    string
 }
@@ -23,7 +23,11 @@ func SendEmail(message EmailMessage) error {
 		return nil
 	}
 	mg := setupMailer()
-	newMessage := mg.NewMessage(message.From, message.Subject, "Please view in HTML", message.To)
+	from := config.EMAIL_FROM
+	if message.From != nil {
+		from = *message.From
+	}
+	newMessage := mg.NewMessage(from, message.Subject, "Please view in HTML", message.To)
 	newMessage.SetHtml(message.Body)
 	_, _, err := mg.Send(newMessage)
 	return err
