@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"syscall"
@@ -80,6 +81,39 @@ func main() {
 		command.RunCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate%s", directory, commandExtension), appState)
 		command.RunCommand(fmt.Sprintf("%s/tmp/migrate%s -testing up", directory, commandExtension), appState)
 		command.RunCommand(fmt.Sprintf("cd %s && go test ./routes/... ./models/... %s", directory, strings.Join(args[1:], " ")), appState)
+	} else if len(args) > 0 && args[0] == "rename" {
+		if len(args) == 1 {
+			log.Fatal("Must pass a new name")
+		}
+		RenamePackage(directory, args[1])
+	}
+}
+
+func RenamePackage(directory string, newName string) {
+	files, err := os.ReadDir(directory)
+	if err != nil {
+		//log.Printf("Error reading dir %s", err)
+	} else {
+		for _, file := range files {
+			path := filepath.Join(directory, file.Name())
+			if file.IsDir() {
+				RenamePackage(path, newName)
+			} else {
+				lastThree := file.Name()[len(file.Name())-3:]
+				if lastThree == ".go" || file.Name() == "go.mod" {
+					currentFile, err := os.ReadFile(path)
+					if err == nil {
+						fileString := string(currentFile)
+						fileString = strings.ReplaceAll(fileString, "gin-n-juice", newName)
+						if err := os.WriteFile(path, []byte(fileString), 0644); err != nil {
+							log.Printf("ERROR - updating file: %s", path)
+						} else {
+							log.Printf("Updated file: %s", path)
+						}
+					}
+				}
+			}
+		}
 	}
 }
 

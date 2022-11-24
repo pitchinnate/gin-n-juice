@@ -46,6 +46,9 @@ Commands
   - Runs the webserver
 - `go run . migrate [status|up|down|etc...]`
   - Runs goose migrations, see goose's documentation for more details
+- `go run . rename [package-name]`
+  - If you want to change your package name from `gin-n-juice` to something else. It will update the
+    `go.mod` and all `.go` file imports
 - `go run . test`
   - Run tests on all routes and models
 - `go run . generator -type [model|resource] -name [ex:user] -fields [name:type,name:type,...]`
