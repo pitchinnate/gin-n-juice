@@ -44,6 +44,7 @@ Commands
 ------
 - `go run .` or `go run . serve`
   - Runs the webserver
+  - Also sets up a watcher and will auto restart webserver when files are changed
 - `go run . migrate [status|up|down|create|etc...]`
   - Runs goose migrations, see goose's documentation for more details
 - `go run . rename [package-name]`
