@@ -3,6 +3,7 @@ package migrations
 import (
 	"database/sql"
 	"gin-n-juice/db"
+	"gin-n-juice/utils/types"
 	"github.com/pressly/goose/v3"
 	"gorm.io/gorm"
 	"time"
@@ -10,10 +11,11 @@ import (
 
 type User struct {
 	gorm.Model
-	Email         string     `json:"email"`
-	Password      string     `json:"-"`
-	Admin         bool       `json:"admin"`
-	EmailVerified *time.Time `json:"email_verified"`
+	Email         string `gorm:"index;not null;unique"`
+	Password      string
+	Admin         bool `gorm:"index"`
+	EmailVerified *time.Time
+	Info          types.JSON `gorm:"serializer:json"`
 }
 
 func init() {

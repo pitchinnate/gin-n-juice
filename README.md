@@ -44,7 +44,7 @@ Commands
 ------
 - `go run .` or `go run . serve`
   - Runs the webserver
-- `go run . migrate [status|up|down|etc...]`
+- `go run . migrate [status|up|down|create|etc...]`
   - Runs goose migrations, see goose's documentation for more details
 - `go run . rename [package-name]`
   - If you want to change your package name from `gin-n-juice` to something else. It will update the

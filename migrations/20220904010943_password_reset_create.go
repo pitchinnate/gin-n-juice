@@ -12,7 +12,7 @@ func init() {
 }
 
 type PasswordReset struct {
-	Email     string `json:"email" gorm:"index"`
+	Email     string `json:"email" gorm:"index; not null"`
 	Token     string `json:"token"`
 	CreatedAt time.Time
 }

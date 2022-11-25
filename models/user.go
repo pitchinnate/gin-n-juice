@@ -2,6 +2,7 @@ package models
 
 import (
 	"gin-n-juice/config"
+	"gin-n-juice/utils/types"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -10,10 +11,11 @@ import (
 
 type User struct {
 	gorm.Model
-	Email         string     `json:"email"`
+	Email         string     `json:"email" binding:"required,email"`
 	Password      string     `json:"-"`
 	Admin         bool       `json:"admin"`
 	EmailVerified *time.Time `json:"email_verified"`
+	Info          types.JSON `json:"info" gorm:"serializer:json"`
 }
 
 func (user *User) BeforeCreate(tx *gorm.DB) (err error) {

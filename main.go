@@ -7,6 +7,7 @@ import (
 	"gin-n-juice/config"
 	"gin-n-juice/utils/command"
 	"github.com/joho/godotenv"
+	"github.com/rjeczalik/notify"
 	"log"
 	"os"
 	"os/signal"
@@ -56,37 +57,89 @@ func main() {
 	}
 
 	c := make(chan os.Signal, 1)
-	appState := make(chan string)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
+
+	appState := make(chan string)
+	events := make(chan notify.EventInfo)
+	closeApp := make(chan string)
+	restarter := make(chan bool)
+
+	notify.Watch("./...", events, notify.All)
+
 	go func() {
-		for {
-			select {
-			case <-c:
-				appState <- "stop"
+		if len(args) == 0 || args[0] == "serve" {
+			RunServer(directory, commandExtension, appState)
+		} else if len(args) > 0 && args[0] == "migrate" {
+			command.RunCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate%s", directory, commandExtension), appState)
+			command.RunCommand(fmt.Sprintf("%s/tmp/migrate%s %s", directory, commandExtension, strings.Join(args[1:], " ")), appState)
+			closeApp <- "done"
+		} else if len(args) > 0 && args[0] == "generator" {
+			command.RunCommand(fmt.Sprintf("cd %s/cmd/generator && go build -o ../../tmp/generator%s", directory, commandExtension), appState)
+			command.RunCommand(fmt.Sprintf("%s/tmp/generator%s %s", directory, commandExtension, strings.Join(args[1:], " ")), appState)
+			closeApp <- "done"
+		} else if len(args) > 0 && args[0] == "test" {
+			os.Remove(fmt.Sprintf("%s/tmp/test.db", directory))
+			command.RunCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate%s", directory, commandExtension), appState)
+			command.RunCommand(fmt.Sprintf("%s/tmp/migrate%s -testing up", directory, commandExtension), appState)
+			command.RunCommand(fmt.Sprintf("cd %s && go test ./routes/... ./models/... %s", directory, strings.Join(args[1:], " ")), appState)
+			closeApp <- "done"
+		} else if len(args) > 0 && args[0] == "rename" {
+			if len(args) == 1 {
+				log.Fatal("Must pass a new name")
 			}
+			RenamePackage(directory, args[1])
+			closeApp <- "done"
 		}
 	}()
 
-	if len(args) == 0 || args[0] == "serve" {
-		command.RunCommand(fmt.Sprintf("cd %s/cmd/server && go build -o ../../tmp/app%s", directory, commandExtension), appState)
-		command.RunCommand(fmt.Sprintf("%s/tmp/app%s", directory, commandExtension), appState)
-	} else if len(args) > 0 && args[0] == "migrate" {
-		command.RunCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate%s", directory, commandExtension), appState)
-		command.RunCommand(fmt.Sprintf("%s/tmp/migrate%s %s", directory, commandExtension, strings.Join(args[1:], " ")), appState)
-	} else if len(args) > 0 && args[0] == "generator" {
-		command.RunCommand(fmt.Sprintf("cd %s/cmd/generator && go build -o ../../tmp/generator%s", directory, commandExtension), appState)
-		command.RunCommand(fmt.Sprintf("%s/tmp/generator%s %s", directory, commandExtension, strings.Join(args[1:], " ")), appState)
-	} else if len(args) > 0 && args[0] == "test" {
-		os.Remove(fmt.Sprintf("%s/tmp/test.db", directory))
-		command.RunCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate%s", directory, commandExtension), appState)
-		command.RunCommand(fmt.Sprintf("%s/tmp/migrate%s -testing up", directory, commandExtension), appState)
-		command.RunCommand(fmt.Sprintf("cd %s && go test ./routes/... ./models/... %s", directory, strings.Join(args[1:], " ")), appState)
-	} else if len(args) > 0 && args[0] == "rename" {
-		if len(args) == 1 {
-			log.Fatal("Must pass a new name")
+	lastReboot := time.Now()
+
+	for {
+		//log.Print("starting to listen again")
+		select {
+		case <-c:
+			fmt.Printf("[GIN-N-JUICE] Killing Server\n")
+			go func() {
+				appState <- "stop"
+			}()
+			time.Sleep(time.Second * 1)
+			go func() {
+				closeApp <- "done"
+			}()
+		case event := <-events:
+			fmt.Print("\033[H\033[2J")
+			fmt.Printf("[GIN-N-JUICE] File changed: %s\n", event.Path())
+			now := time.Now()
+			diff := now.Sub(lastReboot).Seconds()
+
+			if diff >= 1 {
+				lastReboot = now
+				fmt.Printf("[GIN-N-JUICE] Shutting down old commands\n")
+				go func() {
+					appState <- "restart"
+				}()
+				time.Sleep(time.Second * 1)
+				go func() {
+					restarter <- true
+				}()
+			}
+			//log.Print("event done")
+		case <-restarter:
+			fmt.Printf("[GIN-N-JUICE] Restarting Server\n")
+			go RunServer(directory, commandExtension, appState)
+			time.Sleep(time.Second)
+			//log.Print("restart done")
+		case <-closeApp:
+			notify.Stop(events)
+			fmt.Printf("[GIN-N-JUICE] Server Shutdown\n")
+			return
 		}
-		RenamePackage(directory, args[1])
 	}
+}
+
+func RunServer(directory string, commandExtension string, appState chan string) {
+	command.RunCommand(fmt.Sprintf("cd %s/cmd/server && go build -o ../../tmp/app%s", directory, commandExtension), appState)
+	command.RunCommand(fmt.Sprintf("%s/tmp/app%s", directory, commandExtension), appState)
 }
 
 func RenamePackage(directory string, newName string) {
