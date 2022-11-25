@@ -10,6 +10,7 @@ Current Features
 - Database migrations via Goose
 - Simple routing via Gin
 - Simple Auth (login,register,email verification,forgot password and reset password)
+- File watcher to auto reboot server during development
 
 Requirements
 ------
