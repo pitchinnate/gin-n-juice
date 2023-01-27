@@ -55,15 +55,15 @@ func RunCommand(command string, appState chan string) {
 		}
 	}()
 
-	if config.DEBUG {
-		fmt.Printf("[GIN-N-JUICE] command closed: %s %d \n", command, id)
-	}
-
+	// this waits until the command is done or killed
 	<-statusChan
+
+	// code below will not fire till after statusChan is updated
 	if config.DEBUG {
 		fmt.Printf("[GIN-N-JUICE] command done: %s %d \n", command, id)
 	}
 
+	// dump the remaining contents in stdout and stderr
 	status := c.Status()
 	n := len(status.Stdout)
 	if n > 0 {
