@@ -70,18 +70,18 @@ func main() {
 		if len(args) == 0 || args[0] == "serve" {
 			RunServer(directory, commandExtension, appState)
 		} else if len(args) > 0 && args[0] == "migrate" {
-			command.RunCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate%s", directory, commandExtension), appState)
+			command.RunCommand(fmt.Sprintf("go build -o %s/tmp/migrate%s %s/cmd/migrations/main.go", directory, commandExtension, directory), appState)
 			command.RunCommand(fmt.Sprintf("%s/tmp/migrate%s %s", directory, commandExtension, strings.Join(args[1:], " ")), appState)
 			closeApp <- "done"
 		} else if len(args) > 0 && args[0] == "generator" {
-			command.RunCommand(fmt.Sprintf("cd %s/cmd/generator && go build -o ../../tmp/generator%s", directory, commandExtension), appState)
+			command.RunCommand(fmt.Sprintf("go build -o %s/tmp/generator%s %s/cmd/generator/main.go", directory, commandExtension, directory), appState)
 			command.RunCommand(fmt.Sprintf("%s/tmp/generator%s %s", directory, commandExtension, strings.Join(args[1:], " ")), appState)
 			closeApp <- "done"
 		} else if len(args) > 0 && args[0] == "test" {
 			os.Remove(fmt.Sprintf("%s/tmp/test.db", directory))
-			command.RunCommand(fmt.Sprintf("cd %s/cmd/migrations && go build -o ../../tmp/migrate%s", directory, commandExtension), appState)
+			command.RunCommand(fmt.Sprintf("go build -o %s/tmp/migrate%s %s/cmd/migrations/main.go", directory, commandExtension, directory), appState)
 			command.RunCommand(fmt.Sprintf("%s/tmp/migrate%s -testing up", directory, commandExtension), appState)
-			command.RunCommand(fmt.Sprintf("cd %s && go test ./routes/... ./models/... %s", directory, strings.Join(args[1:], " ")), appState)
+			command.RunCommand(fmt.Sprintf("go test ./routes/... ./models/... %s", directory, strings.Join(args[1:], " ")), appState)
 			closeApp <- "done"
 		} else if len(args) > 0 && args[0] == "rename" {
 			if len(args) == 1 {
@@ -138,7 +138,7 @@ func main() {
 }
 
 func RunServer(directory string, commandExtension string, appState chan string) {
-	command.RunCommand(fmt.Sprintf("cd %s/cmd/server && go build -o ../../tmp/app%s", directory, commandExtension), appState)
+	command.RunCommand(fmt.Sprintf("go build -o %s/tmp/app%s %s/cmd/server/main.go", directory, commandExtension, directory), appState)
 	command.RunCommand(fmt.Sprintf("%s/tmp/app%s", directory, commandExtension), appState)
 }
 
