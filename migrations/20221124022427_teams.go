@@ -11,6 +11,7 @@ import (
 type Team struct {
 	gorm.Model
 	OwnerUserId uint       `gorm:"index; not null;"`
+	Name        string     `gorm:"not null"`
 	Info        types.JSON `gorm:"serializer:json"`
 }
 

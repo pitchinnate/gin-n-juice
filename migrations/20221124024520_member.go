@@ -21,9 +21,9 @@ type Member struct {
 }
 
 func upMember(tx *sql.Tx) error {
-	return db.DB.AutoMigrate(Team{})
+	return db.DB.AutoMigrate(Member{})
 }
 
 func downMember(tx *sql.Tx) error {
-	return db.DB.Migrator().DropTable(Team{})
+	return db.DB.Migrator().DropTable(Member{})
 }
