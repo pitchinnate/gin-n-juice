@@ -53,6 +53,8 @@ Commands
     `go.mod` and all `.go` file imports
 - `go run . test`
   - Run tests on all routes and models
+- `go run . seed`
+  - Run the seeders specified in `./seeders/main.go`
 - `go run . generator -type [model|resource] -name [ex:user] -fields [name:type,name:type,...]`
   - `-fields` is only used with model type
   - resource creates standard API endpoints for the name (create,update,delete,list,view)

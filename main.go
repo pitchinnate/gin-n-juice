@@ -89,6 +89,10 @@ func main() {
 			}
 			RenamePackage(directory, args[1])
 			closeApp <- "done"
+		} else if len(args) > 0 && args[0] == "seed" {
+			command.RunCommand(fmt.Sprintf("go build -o %s/tmp/seeder%s %s/cmd/seeder/main.go", directory, commandExtension, directory), appState)
+			command.RunCommand(fmt.Sprintf("%s/tmp/seeder%s %s", directory, commandExtension, strings.Join(args[1:], " ")), appState)
+			closeApp <- "done"
 		}
 	}()
 
